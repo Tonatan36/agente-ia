@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assistente de Balcão — Aço Forte</title>
+    <style>
+        :root {
+            --primary: #1e3a8a;
+            --secondary: #3b82f6;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-color: #1e293b;
+            --border-color: #cbd5e1;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        header h1 {
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+
+        header p {
+            color: #64748b;
+        }
+
+        /* Sistema de Abas */
+        .tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        .tab-btn {
+            background-color: #e2e8f0;
+            border: none;
+            padding: 10px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #475569;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Formulários */
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #334155;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+
+        button.calc-btn {
+            background-color: var(--secondary);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            transition: background 0.2s;
+        }
+
+        button.calc-btn:hover {
+            background-color: #2563eb;
+        }
+
+        .result-box {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #eff6ff;
+            border-left: 5px solid var(--secondary);
+            border-radius: 4px;
+            line-height: 1.5;
+        }
+
+        /* Chat de IA */
+        #chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 400px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+            background: #fff;
+            margin-top: 15px;
+        }
+
+        #chat-messages {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            background: #f1f5f9;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .message {
+            padding: 10px 14px;
+            border-radius: 8px;
+            max-width: 80%;
+            line-height: 1.4;
+            word-wrap: break-word;
+        }
+
+        .message.user {
+            background: var(--primary);
+            color: white;
+            align-self: flex-end;
+        }
+
+        .message.ai {
+            background: #e2e8f0;
+            color: #1e293b;
+            align-self: flex-start;
+        }
+
+        .chat-input-area {
+            display: flex;
+            padding: 10px;
+            background: #fff;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .chat-input-area input {
+            border-radius: 6px 0 0 6px;
+        }
+
+        .chat-input-area button {
+            width: 120px;
+            border-radius: 0 6px 6px 0;
+            margin-top: 0;
+            background: var(--primary);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>🛠️ Aço Forte — Assistente de Balcão</h1>
+        <p>João Pessoa / PB | Ferramenta Web 100% JavaScript com IA Groq</p>
+    </header>
+
+    <!-- Navegação por Abas -->
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab(event, 'ia')">🤖 Assistente IA</button>
+        <button class="tab-btn" onclick="switchTab(event, 'pvc')">📐 Forro PVC</button>
+        <button class="tab-btn" onclick="switchTab(event, 'telhas')">🏠 Telhas</button>
+        <button class="tab-btn" onclick="switchTab(event, 'conversor')">📏 Conversor mm/Pol</button>
+        <button class="tab-btn" onclick="switchTab(event, 'postes')">⚡ Postes</button>
+        <button class="tab-btn" onclick="switchTab(event, 'fixadores')">🔩 Fixadores</button>
+    </div>
+
+    <!-- ABA 1: ASSISTENTE IA -->
+    <div id="ia" class="tab-content active">
+        <h3>💬 Chat com Assistente IA da Aço Forte</h3>
+        <p>Configure sua chave da API abaixo uma única vez. Ela fica salva apenas no seu navegador com segurança.</p>
+        
+        <!-- Configuração segura da Chave de API -->
+        <div class="form-group" style="background: #f1f5f9; padding: 12px; border-radius: 6px;">
+            <label for="api-key-input">Sua Chave da API (Groq):</label>
+            <input type="password" id="api-key-input" placeholder="Cole sua chave gsk_... aqui" onchange="salvarChave(this.value)">
+            <small style="color: #64748b; display: block; margin-top: 4px;">A chave é armazenada no seu `localStorage` local.</small>
+        </div>
+
+        <div id="chat-container">
+            <div id="chat-messages">
+                <div class="message ai">Olá! Sou o assistente virtual da Aço Forte em João Pessoa. Insira sua chave acima e digite como posso ajudar no atendimento hoje?</div>
+            </div>
+            <div class="chat-input-area">
+                <input type="text" id="user-input" placeholder="Digite sua dúvida aqui..." onkeypress="handleKeyPress(event)">
+                <button class="calc-btn" onclick="enviarMensagem()">Enviar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ABA 2: FORRO PVC -->
+    <div id="pvc" class="tab-content">
+        <h3>Cálculo de Forro PVC por Ambiente</h3>
+        <div class="form-group">
+            <label>Comprimento do Ambiente (m):</label>
+            <input type="number" id="pvc-comp" value="5.0" step="0.1">
+        </div>
+        <div class="form-group">
+            <label>Largura do Ambiente (m):</label>
+            <input type="number" id="pvc-larg" value="4.0" step="0.1">
+        </div>
+        <div class="form-group">
+            <label>Comprimento da Régua de PVC:</label>
+            <select id="pvc-regua">
+                <option value="3.0">3 metros</option>
+                <option value="4.0">4 metros</option>
+                <option value="5.0">5 metros</option>
+                <option value="6.0" selected>6 metros</option>
+            </select>
+        </div>
+        <button class="calc-btn" onclick="calcularPVC()">Calcular Material</button>
+        <div id="pvc-result" class="result-box" style="display:none;"></div>
+    </div>
+
+    <!-- ABA 3: TELHAS -->
+    <div id="telhas" class="tab-content">
+        <h3>Calculadora de Telhas Trapezoidais (2m a 6m)</h3>
+        <div class="form-group">
+            <label>Largura Total a Cobrir / Testada (m):</label>
+            <input type="number" id="telha-larg" value="6.0" step="0.5">
+        </div>
+        <div class="form-group">
+            <label>Comprimento da Água / Caimento (m):</label>
+            <input type="number" id="telha-comp" value="4.0" step="0.5">
+        </div>
+        <button class="calc-btn" onclick="calcularTelhas()">Dimensionar Telhas</button>
+        <div id="telha-result" class="result-box" style="display:none;"></div>
+    </div>
+
+    <!-- ABA 4: CONVERSOR -->
+    <div id="conversor" class="tab-content">
+        <h3>Conversor Técnico: mm <-> Polegadas (Tubos, Perfis, Parafusos e Brocas)</h3>
+        <div class="form-group">
+            <label>Digite a medida em Milímetros (mm):</label>
+            <input type="number" id="conv-mm" value="50.0" step="0.5" oninput="converterMedida()">
+        </div>
+        <div id="conv-result" class="result-box">
+            <strong>Resultado:</strong> 50 mm corresponde a <strong>2" (Perfil U / Tubo comercial aproximado)</strong>
+        </div>
+    </div>
+
+    <!-- ABA 5: POSTES -->
+    <div id="postes" class="tab-content">
+        <h3>Guia de Postes Completos (Padrão Energisa)</h3>
+        <div class="form-group">
+            <label>Selecione o Padrão:</label>
+            <select id="poste-tipo" onchange="mostrarPostes()">
+                <option value="trifasico">Poste Completo Trifásico</option>
+                <option value="bifasico">Poste Completo Bifásico</option>
+                <option value="monofasico">Poste Completo Monofásico</option>
+            </select>
+        </div>
+        <div id="poste-result" class="result-box">
+            <strong>Itens do Trifásico:</strong> Poste de concreto (7m/300daN), Caixa Polifásica, Disjuntor Geral 50A/63A, Eletroduto, Bengala, Haste de aterramento e acessórios padrão Energisa.
+        </div>
+    </div>
+
+    <!-- ABA 6: FIXADORES -->
+    <div id="fixadores" class="tab-content">
+        <h3>Guia Rápido de Fixadores, Buchas e Brocas</h3>
+        <div class="result-box" style="margin-top:0;">
+            • <strong>Parafuso 1/8" (3.2 mm):</strong> Bucha S5 | Chave 5.5mm | Broca 5mm<br>
+            • <strong>Parafuso 3/16" (4.8 mm):</strong> Bucha S6 ou S8 | Chave 8mm | Broca 6mm ou 8mm<br>
+            • <strong>Parafuso 1/4" (6.35 mm):</strong> Bucha S8 ou S10 | Chave 10mm | Broca 8mm<br>
+            • <strong>Parafuso 5/16" (7.94 mm):</strong> Bucha S10 ou S12 | Chave 13mm | Broca 10mm
+        </div>
+    </div>
+</div>
+
+<script>
+    const API_ENDPOINT = "https://api.groq.com/openai/v1/chat/completions";
+
+    // Carregar a chave salva ao abrir a página
+    window.onload = function() {
+        let savedKey = localStorage.getItem("grok_api_key");
+        if(savedKey) {
+            document.getElementById('api-key-input').value = savedKey;
+        }
+    };
+
+    function salvarChave(val) {
+        localStorage.setItem("grok_api_key", val.trim());
+        alert("Chave da API salva com sucesso no navegador!");
+    }
+
+    // Controle de Abas
+    function switchTab(evt, tabName) {
+        let contents = document.getElementsByClassName("tab-content");
+        for (let c of contents) c.classList.remove("active");
+
+        let buttons = document.getElementsByClassName("tab-btn");
+        for (let b of buttons) b.classList.remove("active");
+
+        document.getElementById(tabName).classList.add("active");
+        evt.currentTarget.classList.add("active");
+    }
+
+    // Cálculo PVC
+    function calcularPVC() {
+        let comp = parseFloat(document.getElementById('pvc-comp').value);
+        let larg = parseFloat(document.getElementById('pvc-larg').value);
+        let regua = parseFloat(document.getElementById('pvc-regua').value);
+
+        let areaAmbiente = comp * larg;
+        let areaFolha = regua * 0.20; 
+        let qtdFolhas = Math.ceil(areaAmbiente / areaFolha);
+        let totalM2 = qtdFolhas * areaFolha;
+
+        let res = document.getElementById('pvc-result');
+        res.style.display = 'block';
+        res.innerHTML = `<strong>Resultado:</strong><br>
+            • Área do ambiente: ${areaAmbiente.toFixed(2)} m²<br>
+            • Quantidade de folhas (${regua}m): <strong>${qtdFolhas} folhas</strong><br>
+            • Total de M² correspondente à venda: ${totalM2.toFixed(2)} m²`;
+    }
+
+    // Cálculo Telhas
+    function calcularTelhas() {
+        let larg = parseFloat(document.getElementById('telha-larg').value);
+        let comp = parseFloat(document.getElementById('telha-comp').value);
+
+        let qtdLados = Math.ceil(larg / 1.00);
+        let compComBeiral = comp + 0.20;
+        let compComercial = Math.ceil(compComBeiral * 2) / 2;
+
+        let res = document.getElementById('telha-result');
+        res.style.display = 'block';
+        res.innerHTML = `<strong>Dimensionamento de Telhas:</strong><br>
+            • Peças lado a lado: <strong>${qtdLados} peças</strong><br>
+            • Comprimento sugerido com beiral: ${compComBeiral.toFixed(2)}m<br>
+            • Sugestão comercial de folha: Próximo a ${compComercial}m (Disponível de 2m até 6m)`;
+    }
+
+    // Conversor mm <-> Pol
+    function converterMedida() {
+        let mm = parseFloat(document.getElementById('conv-mm').value);
+        let res = document.getElementById('conv-result');
+        
+        let texto = "";
+        if (Math.abs(mm - 50.8) < 2 || Math.abs(mm - 50) < 2) {
+            texto = `<strong>Resultado:</strong> ${mm} mm corresponde a <strong>2" (Perfil U de 50mm / Tubo 2 polegadas)</strong>`;
+        } else if (Math.abs(mm - 25.4) < 2) {
+            texto = `<strong>Resultado:</strong> ${mm} mm corresponde a <strong>1 polegada (1")</strong>`;
+        } else if (Math.abs(mm - 12.7) < 2) {
+            texto = `<strong>Resultado:</strong> ${mm} mm corresponde a <strong>1/2 polegada (1/2")</strong>`;
+        } else if (Math.abs(mm - 19.05) < 2) {
+            texto = `<strong>Resultado:</strong> ${mm} mm corresponde a <strong>3/4 polegada (3/4")</strong>`;
+        } else {
+            let pol = (mm / 25.4).toFixed(3);
+            texto = `<strong>Resultado:</strong> ${mm} mm equivalem a aproximadamente <strong>${pol} polegadas</strong>`;
+        }
+        res.innerHTML = texto;
+    }
+
+    // Guia de Postes Padrão Energisa
+    function mostrarPostes() {
+        let tipo = document.getElementById('poste-tipo').value;
+        let res = document.getElementById('poste-result');
+        if (tipo === 'trifasico') {
+            res.innerHTML = '<strong>Itens do Trifásico:</strong> Poste de concreto (7m/300daN), Caixa Polifásica, Disjuntor Geral 50A/63A, Eletroduto, Bengala, Haste de aterramento e acessórios padrão Energisa.';
+        } else if (tipo === 'bifasico') {
+            res.innerHTML = '<strong>Itens do Bifásico:</strong> Poste de concreto (7m), Caixa Bifásica, Disjuntor Geral 40A/50A, Eletroduto, Bengala e Haste de aterramento padrão Energisa.';
+        } else {
+            res.innerHTML = '<strong>Itens do Monofásico:</strong> Poste de concreto (6m/7m), Caixa Monofásica, Disjuntor Geral 30A/40A, Eletroduto, Bengala e Haste de aterramento padrão Energisa.';
+        }
+    }
+
+    // Chat com IA Groq (Modelo Llama 3.1 8B Instant atualizado)
+    async function enviarMensagem() {
+        let apiKey = localStorage.getItem("grok_api_key");
+        if (!apiKey) {
+            alert("Por favor, insira e salve sua Chave da API da Groq no campo acima antes de usar o chat!");
+            return;
+        }
+
+        let input = document.getElementById('user-input');
+        let texto = input.value.trim();
+        if(!texto) return;
+
+        let chatMessages = document.getElementById('chat-messages');
+        
+        chatMessages.innerHTML += `<div class="message user">${texto}</div>`;
+        input.value = "";
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+
+        let loadingId = "loading-" + Date.now();
+        chatMessages.innerHTML += `<div id="${loadingId}" class="message ai">Consultando assistente...</div>`;
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+
+        try {
+            let resposta = await fetch(API_ENDPOINT, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${apiKey}`
+                },
+                body: JSON.stringify({
+                    model: "llama-3.1-8b-instant", // Modelo garantido e ativo na Groq
+                    messages: [
+                        {
+                            role: "system", 
+                            content: "Você é um assistente virtual especialista em atendimento de balcão para uma distribuidora de aços, alumínios, telhas trapezoidais, forro de PVC, postes padrão Energisa e materiais de construção em João Pessoa chamada Aço Forte. Ajude o atendente com orientações técnicas, conversões, brocas, buchas e esclarecimentos de produtos."
+                        },
+                        {
+                            role: "user", 
+                            content: texto
+                        }
+                    ],
+                    temperature: 0.7
+                })
+            });
+
+            let dados = await resposta.json();
+            document.getElementById(loadingId).remove();
+
+            if (!resposta.ok) {
+                let erroDetalhe = dados.error ? dados.error.message : "Erro desconhecido";
+                chatMessages.innerHTML += `<div class="message ai" style="background: #fee2e2; color: #991b1b;"><strong>Erro da API (${resposta.status}):</strong> ${erroDetalhe}</div>`;
+                return;
+            }
+
+            if (dados.choices && dados.choices.length > 0) {
+                let respostaIA = dados.choices[0].message.content;
+                chatMessages.innerHTML += `<div class="message ai">${respostaIA}</div>`;
+            } else {
+                chatMessages.innerHTML += `<div class="message ai">A resposta da API veio vazia.</div>`;
+            }
+
+        } catch (erro) {
+            document.getElementById(loadingId).remove();
+            chatMessages.innerHTML += `<div class="message ai" style="background: #fee2e2; color: #991b1b;"><strong>Erro de Rede / CORS:</strong> Não foi possível conectar ao servidor da Groq.</div>`;
+            console.error(erro);
+        }
+
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function handleKeyPress(e) {
+        if(e.key === 'Enter') {
+            enviarMensagem();
+        }
+    }
+</script>
+
+</body>
+</html>
