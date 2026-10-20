@@ -3,189 +3,580 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Assistente de Balcão — Aço Forte</title>
+    <title>Assistente de Balcão — Aço Forte | João Pessoa</title>
+    <!-- Marked.js para renderização de Markdown no Chat -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- DOMPurify para prevenção de XSS -->
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script>
     <style>
         :root {
             --primary: #1e3a8a;
-            --secondary: #3b82f6;
-            --bg-color: #f8fafc;
+            --primary-dark: #172554;
+            --primary-light: #3b82f6;
+            --accent: #f97316;
+            --accent-hover: #ea580c;
+            --bg-color: #f1f5f9;
             --card-bg: #ffffff;
-            --text-color: #1e293b;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
             --border-color: #cbd5e1;
+            --success: #16a34a;
+            --success-bg: #dcfce7;
+            --danger: #dc2626;
+            --danger-bg: #fee2e2;
+            --radius-md: 10px;
+            --radius-sm: 6px;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.06);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
             background-color: var(--bg-color);
-            color: var(--text-color);
-            margin: 0;
-            padding: 20px;
+            color: var(--text-main);
+            line-height: 1.5;
+            padding: 16px;
         }
 
         .container {
-            max-width: 900px;
+            max-width: 960px;
             margin: 0 auto;
         }
 
+        /* Cabeçalho */
         header {
-            text-align: center;
-            margin-bottom: 25px;
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+            color: white;
+            padding: 24px;
+            border-radius: var(--radius-md);
+            margin-bottom: 20px;
+            box-shadow: var(--shadow-md);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
         }
 
         header h1 {
-            color: var(--primary);
-            margin-bottom: 5px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         header p {
-            color: #64748b;
+            color: #93c5fd;
+            font-size: 0.9rem;
+            margin-top: 4px;
+        }
+
+        .badge-status {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(4px);
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #4ade80;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .status-dot.off {
+            background-color: #f87171;
         }
 
         /* Sistema de Abas */
         .tabs {
             display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            margin-bottom: 20px;
-            border-bottom: 2px solid var(--border-color);
-            padding-bottom: 10px;
+            gap: 8px;
+            margin-bottom: 16px;
+            overflow-x: auto;
+            padding-bottom: 6px;
+            scrollbar-width: thin;
         }
 
         .tab-btn {
             background-color: #e2e8f0;
             border: none;
-            padding: 10px 14px;
-            border-radius: 6px;
+            padding: 10px 16px;
+            border-radius: var(--radius-sm);
             cursor: pointer;
             font-weight: 600;
             font-size: 0.9rem;
             color: #475569;
-            transition: all 0.2s;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .tab-btn:hover {
+            background-color: #cbd5e1;
+            color: var(--text-main);
         }
 
         .tab-btn.active {
             background-color: var(--primary);
-            color: white;
+            color: #ffffff;
+            box-shadow: 0 2px 4px rgba(30, 58, 138, 0.3);
         }
 
+        /* Conteúdo das Abas */
         .tab-content {
             display: none;
             background: var(--card-bg);
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            padding: 24px;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            animation: fadeIn 0.2s ease;
         }
 
         .tab-content.active {
             display: block;
         }
 
-        /* Formulários */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(3px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-header {
+            margin-bottom: 20px;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 12px;
+        }
+
+        .section-header h2 {
+            font-size: 1.25rem;
+            color: var(--primary-dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-header p {
+            color: var(--text-muted);
+            font-size: 0.88rem;
+            margin-top: 4px;
+        }
+
+        /* Formulários e Grades */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 14px;
+        }
+
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 16px;
         }
 
         label {
             display: block;
             font-weight: 600;
-            margin-bottom: 5px;
+            font-size: 0.88rem;
+            margin-bottom: 6px;
             color: #334155;
         }
 
-        input, select {
+        input, select, textarea {
             width: 100%;
-            padding: 10px;
+            padding: 10px 12px;
             border: 1px solid var(--border-color);
-            border-radius: 6px;
-            font-size: 1rem;
-            box-sizing: border-box;
+            border-radius: var(--radius-sm);
+            font-size: 0.95rem;
+            color: var(--text-main);
+            background-color: #fff;
+            transition: border-color 0.2s, box-shadow 0.2s;
         }
 
-        button.calc-btn {
-            background-color: var(--secondary);
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 6px;
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
-            width: 100%;
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+        }
+
+        /* Botões */
+        .btn-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
             margin-top: 10px;
-            transition: background 0.2s;
         }
 
-        button.calc-btn:hover {
-            background-color: #2563eb;
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 11px 18px;
+            border-radius: var(--radius-sm);
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s ease;
         }
 
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+            flex: 1;
+            min-width: 180px;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .btn-whatsapp {
+            background-color: #25d366;
+            color: #ffffff;
+            font-weight: 700;
+        }
+
+        .btn-whatsapp:hover {
+            background-color: #1eb855;
+        }
+
+        .btn-secondary {
+            background-color: #f1f5f9;
+            color: #475569;
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: #e2e8f0;
+            color: var(--text-main);
+        }
+
+        .btn-danger {
+            background-color: #fee2e2;
+            color: #b91c1c;
+            border: 1px solid #fecaca;
+        }
+
+        .btn-danger:hover {
+            background-color: #fecaca;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* Caixas de Resultados */
         .result-box {
             margin-top: 20px;
-            padding: 15px;
-            background-color: #eff6ff;
-            border-left: 5px solid var(--secondary);
-            border-radius: 4px;
-            line-height: 1.5;
+            padding: 18px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-left: 5px solid var(--primary-light);
+            border-radius: var(--radius-sm);
+            line-height: 1.6;
+            position: relative;
         }
 
-        /* Chat de IA */
+        .result-box h4 {
+            color: var(--primary-dark);
+            margin-bottom: 10px;
+            font-size: 1.05rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .result-box ul {
+            padding-left: 20px;
+            margin-bottom: 12px;
+        }
+
+        .result-box li {
+            margin-bottom: 5px;
+        }
+
+        .result-highlight {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        /* Chat e IA */
+        .api-config-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: var(--radius-sm);
+            padding: 14px;
+            margin-bottom: 16px;
+        }
+
+        .input-group-key {
+            display: flex;
+            gap: 8px;
+        }
+
+        .input-group-key input {
+            flex: 1;
+        }
+
         #chat-container {
             display: flex;
             flex-direction: column;
-            height: 400px;
+            height: 480px;
             border: 1px solid var(--border-color);
-            border-radius: 8px;
+            border-radius: var(--radius-sm);
             overflow: hidden;
-            background: #fff;
-            margin-top: 15px;
+            background: #ffffff;
+        }
+
+        .chat-header-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 14px;
+            background: #f8fafc;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.82rem;
+            color: var(--text-muted);
         }
 
         #chat-messages {
             flex: 1;
-            padding: 15px;
+            padding: 16px;
             overflow-y: auto;
-            background: #f1f5f9;
+            background: #f8fafc;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 12px;
+        }
+
+        .message-wrapper {
+            display: flex;
+            flex-direction: column;
+            max-width: 85%;
+        }
+
+        .message-wrapper.user {
+            align-self: flex-end;
+            align-items: flex-end;
+        }
+
+        .message-wrapper.ai {
+            align-self: flex-start;
+            align-items: flex-start;
+        }
+
+        .message-sender {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: #64748b;
+            margin-bottom: 3px;
+            padding: 0 4px;
         }
 
         .message {
-            padding: 10px 14px;
-            border-radius: 8px;
-            max-width: 80%;
-            line-height: 1.4;
-            word-wrap: break-word;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 0.92rem;
+            line-height: 1.5;
+            word-break: break-word;
+            position: relative;
         }
 
         .message.user {
             background: var(--primary);
             color: white;
-            align-self: flex-end;
+            border-bottom-right-radius: 2px;
         }
 
         .message.ai {
+            background: #ffffff;
+            color: var(--text-main);
+            border: 1px solid #e2e8f0;
+            border-bottom-left-radius: 2px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+
+        /* Estilos Markdown dentro do Chat */
+        .message.ai p { margin-bottom: 8px; }
+        .message.ai p:last-child { margin-bottom: 0; }
+        .message.ai ul, .message.ai ol { padding-left: 20px; margin-bottom: 8px; }
+        .message.ai li { margin-bottom: 4px; }
+        .message.ai strong { color: var(--primary-dark); font-weight: 700; }
+        .message.ai table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 8px 0;
+            font-size: 0.85rem;
+        }
+        .message.ai th, .message.ai td {
+            border: 1px solid #cbd5e1;
+            padding: 6px 10px;
+            text-align: left;
+        }
+        .message.ai th {
+            background-color: #f1f5f9;
+        }
+
+        .message-actions {
+            margin-top: 4px;
+            display: flex;
+            gap: 6px;
+        }
+
+        .btn-msg-copy {
+            background: none;
+            border: none;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .btn-msg-copy:hover {
+            color: var(--primary);
             background: #e2e8f0;
-            color: #1e293b;
-            align-self: flex-start;
+        }
+
+        .typing-indicator {
+            display: inline-flex;
+            gap: 4px;
+            align-items: center;
+            padding: 6px 12px;
+        }
+
+        .typing-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--text-muted);
+            border-radius: 50%;
+            animation: pulse 1.4s infinite ease-in-out both;
+        }
+
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes pulse {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
         }
 
         .chat-input-area {
             display: flex;
-            padding: 10px;
-            background: #fff;
+            padding: 12px;
+            background: #ffffff;
             border-top: 1px solid var(--border-color);
+            gap: 8px;
         }
 
         .chat-input-area input {
-            border-radius: 6px 0 0 6px;
+            border-radius: var(--radius-sm);
         }
 
         .chat-input-area button {
-            width: 120px;
-            border-radius: 0 6px 6px 0;
-            margin-top: 0;
-            background: var(--primary);
+            border-radius: var(--radius-sm);
+            padding: 0 20px;
+            margin: 0;
+            white-space: nowrap;
+        }
+
+        /* Tabelas Gerais */
+        .table-responsive {
+            overflow-x: auto;
+            margin-top: 14px;
+        }
+
+        table.data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+            background: #ffffff;
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+        }
+
+        table.data-table th, table.data-table td {
+            padding: 10px 14px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        table.data-table th {
+            background-color: #f1f5f9;
+            color: var(--text-main);
+            font-weight: 700;
+        }
+
+        table.data-table tr:hover {
+            background-color: #f8fafc;
+        }
+
+        /* Notificação Toast */
+        #toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: #1e293b;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.2);
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(10px);
+            transition: all 0.25s ease;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        #toast.show {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0);
+        }
+
+        #toast.success { background: #065f46; border-left: 4px solid #34d399; }
+        #toast.info { background: #1e3a8a; border-left: 4px solid #60a5fa; }
+        #toast.error { background: #991b1b; border-left: 4px solid #f87171; }
+
+        @media (max-width: 640px) {
+            body { padding: 8px; }
+            header { padding: 16px; }
+            .tab-content { padding: 16px; }
+            #chat-container { height: 420px; }
+            .message-wrapper { max-width: 95%; }
+            .btn-primary { width: 100%; }
         }
     </style>
 </head>
@@ -193,294 +584,1010 @@
 
 <div class="container">
     <header>
-        <h1>🛠️ Aço Forte — Assistente de Balcão</h1>
-        <p>João Pessoa / PB | Ferramenta Web 100% JavaScript com IA Groq</p>
+        <div>
+            <h1>🛠️ Aço Forte — Balcão Inteligente</h1>
+            <p>João Pessoa / PB | Cálculo Técnico, Especificações e Assistente IA Groq</p>
+        </div>
+        <div>
+            <div id="key-indicator" class="badge-status">
+                <span class="status-dot off" id="key-dot"></span>
+                <span id="key-status-text">Chave API Ausente</span>
+            </div>
+        </div>
     </header>
 
     <!-- Navegação por Abas -->
     <div class="tabs">
         <button class="tab-btn active" onclick="switchTab(event, 'ia')">🤖 Assistente IA</button>
         <button class="tab-btn" onclick="switchTab(event, 'pvc')">📐 Forro PVC</button>
-        <button class="tab-btn" onclick="switchTab(event, 'telhas')">🏠 Telhas</button>
-        <button class="tab-btn" onclick="switchTab(event, 'conversor')">📏 Conversor mm/Pol</button>
-        <button class="tab-btn" onclick="switchTab(event, 'postes')">⚡ Postes</button>
-        <button class="tab-btn" onclick="switchTab(event, 'fixadores')">🔩 Fixadores</button>
+        <button class="tab-btn" onclick="switchTab(event, 'telhas')">🏠 Telhas Trapezoidais</button>
+        <button class="tab-btn" onclick="switchTab(event, 'conversor')">📏 Conversor mm / Pol</button>
+        <button class="tab-btn" onclick="switchTab(event, 'postes')">⚡ Postes Energisa</button>
+        <button class="tab-btn" onclick="switchTab(event, 'fixadores')">🔩 Fixadores & Brocas</button>
     </div>
 
     <!-- ABA 1: ASSISTENTE IA -->
     <div id="ia" class="tab-content active">
-        <h3>💬 Chat com Assistente IA da Aço Forte</h3>
-        <p>Configure sua chave da API abaixo uma única vez. Ela fica salva apenas no seu navegador com segurança.</p>
-        
-        <!-- Configuração segura da Chave de API -->
-        <div class="form-group" style="background: #f1f5f9; padding: 12px; border-radius: 6px;">
-            <label for="api-key-input">Sua Chave da API (Groq):</label>
-            <input type="password" id="api-key-input" placeholder="Cole sua chave gsk_... aqui" onchange="salvarChave(this.value)">
-            <small style="color: #64748b; display: block; margin-top: 4px;">A chave é armazenada no seu `localStorage` local.</small>
+        <div class="section-header">
+            <h2>💬 Chat de Balcão com IA Especialista</h2>
+            <p>Tire dúvidas técnicas rápidas sobre perfis de ferro, ferragens, caimentos, buchas, telhas e normas da Energisa na Grande João Pessoa.</p>
+        </div>
+
+        <div class="api-config-card">
+            <label for="api-key-input">🔑 Chave da API Groq (Armazenada localmente e segura no seu navegador):</label>
+            <div class="input-group-key">
+                <input type="password" id="api-key-input" placeholder="Cole sua chave gsk_... aqui">
+                <button type="button" class="btn btn-secondary" onclick="toggleChaveVisivel()" id="btn-toggle-eye">👁️ Ver</button>
+                <button type="button" class="btn btn-primary" onclick="salvarChaveManual()" style="min-width: 100px; flex: 0;">Salvar</button>
+                <button type="button" class="btn btn-danger" onclick="removerChaveManual()" title="Remover chave salva">🗑️</button>
+            </div>
+            <small style="color: var(--text-muted); display: block; margin-top: 6px;">
+                💡 Obtenha gratuitamente em: <a href="https://console.groq.com/keys" target="_blank" rel="noopener noreferrer" style="color: var(--primary-light); font-weight: 600;">console.groq.com</a>
+            </small>
         </div>
 
         <div id="chat-container">
-            <div id="chat-messages">
-                <div class="message ai">Olá! Sou o assistente virtual da Aço Forte em João Pessoa. Insira sua chave acima e digite como posso ajudar no atendimento hoje?</div>
+            <div class="chat-header-actions">
+                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                    <label for="select-groq-model" style="margin: 0; font-size: 0.82rem; font-weight: 700; color: #475569;">Modelo IA:</label>
+                    <select id="select-groq-model" onchange="salvarModeloSelecionado(this.value)" style="padding: 5px 8px; font-size: 0.82rem; width: auto; min-width: 210px; border-radius: 4px; border: 1px solid var(--border-color); background: white;">
+                        <option value="llama-3.3-70b-versatile" selected>⚡ Llama 3.3 70B Versatile (Recomendado)</option>
+                        <option value="llama3-70b-8192">Llama 3 70B (8192)</option>
+                        <option value="llama3-8b-8192">Llama 3 8B (8192)</option>
+                        <option value="gemma2-9b-it">Gemma 2 9B (Google)</option>
+                        <option value="deepseek-r1-distill-llama-70b">DeepSeek R1 Distill 70B</option>
+                        <option value="llama-3.1-8b-instant">Llama 3.1 8B Instant (Legado)</option>
+                    </select>
+                    <button class="btn-msg-copy" onclick="buscarModelosAtivos()" title="Detectar modelos disponíveis na sua chave">🔄 Sincronizar</button>
+                </div>
+                <div>
+                    <button class="btn-msg-copy" onclick="limparHistoricoChat()">🧹 Limpar Conversa</button>
+                </div>
             </div>
+            
+            <div id="chat-messages">
+                <div class="message-wrapper ai">
+                    <span class="message-sender">Assistente Aço Forte</span>
+                    <div class="message ai">
+                        Olá! Sou o assistente técnico de balcão da <strong>Aço Forte</strong> em João Pessoa. Como posso ajudar com cálculos, especificações de produtos, ferragens ou materiais hoje?
+                    </div>
+                </div>
+            </div>
+
             <div class="chat-input-area">
-                <input type="text" id="user-input" placeholder="Digite sua dúvida aqui..." onkeypress="handleKeyPress(event)">
-                <button class="calc-btn" onclick="enviarMensagem()">Enviar</button>
+                <input type="text" id="user-input" placeholder="Ex: Qual o caimento mínimo para telha trapezoidal TP40?" onkeypress="handleKeyPress(event)" autocomplete="off">
+                <button class="btn btn-primary" id="btn-enviar" onclick="enviarMensagem()">
+                    <span>Enviar</span>
+                </button>
             </div>
         </div>
     </div>
 
     <!-- ABA 2: FORRO PVC -->
     <div id="pvc" class="tab-content">
-        <h3>Cálculo de Forro PVC por Ambiente</h3>
-        <div class="form-group">
-            <label>Comprimento do Ambiente (m):</label>
-            <input type="number" id="pvc-comp" value="5.0" step="0.1">
+        <div class="section-header">
+            <h2>📐 Calculadora Completa de Forro PVC</h2>
+            <p>Calcula réguas, acabamento perimetral (rodaforro/moldura), estrutura metálica de sustentação e parafusos com perda técnica.</p>
         </div>
-        <div class="form-group">
-            <label>Largura do Ambiente (m):</label>
-            <input type="number" id="pvc-larg" value="4.0" step="0.1">
+
+        <div class="grid-2">
+            <div class="form-group">
+                <label>Comprimento do Ambiente (m):</label>
+                <input type="number" id="pvc-comp" value="5.0" step="0.1" min="0.1">
+            </div>
+            <div class="form-group">
+                <label>Largura do Ambiente (m):</label>
+                <input type="number" id="pvc-larg" value="4.0" step="0.1" min="0.1">
+            </div>
         </div>
-        <div class="form-group">
-            <label>Comprimento da Régua de PVC:</label>
-            <select id="pvc-regua">
-                <option value="3.0">3 metros</option>
-                <option value="4.0">4 metros</option>
-                <option value="5.0">5 metros</option>
-                <option value="6.0" selected>6 metros</option>
-            </select>
+
+        <div class="grid-3">
+            <div class="form-group">
+                <label>Comprimento da Régua:</label>
+                <select id="pvc-regua">
+                    <option value="3.0">3,00 metros</option>
+                    <option value="4.0">4,00 metros</option>
+                    <option value="5.0">5,00 metros</option>
+                    <option value="6.0" selected>6,00 metros (Mais comum)</option>
+                    <option value="7.0">7,00 metros</option>
+                    <option value="8.0">8,00 metros</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Largura da Lâmina (cm):</label>
+                <select id="pvc-largura-folha">
+                    <option value="0.20" selected>20 cm (0,20 m - Padrão)</option>
+                    <option value="0.25">25 cm (0,25 m)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Margem de Perda / Recorte:</label>
+                <select id="pvc-perda">
+                    <option value="0.05">5% (Ambiente regular)</option>
+                    <option value="0.10" selected>10% (Recomendado)</option>
+                    <option value="0.15">15% (Recortes e desvios)</option>
+                </select>
+            </div>
         </div>
-        <button class="calc-btn" onclick="calcularPVC()">Calcular Material</button>
+
+        <button class="btn btn-primary" onclick="calcularPVC()">Calcular Orçamento de PVC</button>
+
         <div id="pvc-result" class="result-box" style="display:none;"></div>
     </div>
 
-    <!-- ABA 3: TELHAS -->
+    <!-- ABA 3: TELHAS TRAPEZOIDAIS -->
     <div id="telhas" class="tab-content">
-        <h3>Calculadora de Telhas Trapezoidais (2m a 6m)</h3>
-        <div class="form-group">
-            <label>Largura Total a Cobrir / Testada (m):</label>
-            <input type="number" id="telha-larg" value="6.0" step="0.5">
+        <div class="section-header">
+            <h2>🏠 Calculadora de Telhas Trapezoidais (TP40 / Galvalume)</h2>
+            <p>Dimensionamento de folhas, parafusos autobrocantes, costura e cumeeiras para 1 ou 2 águas.</p>
         </div>
-        <div class="form-group">
-            <label>Comprimento da Água / Caimento (m):</label>
-            <input type="number" id="telha-comp" value="4.0" step="0.5">
+
+        <div class="grid-3">
+            <div class="form-group">
+                <label>Tipo de Caimento:</label>
+                <select id="telha-aguas">
+                    <option value="1" selected>1 Água (Meia-água / Inclinado)</option>
+                    <option value="2">2 Águas (Com cumeeira central)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Largura da Fachada / Testada (m):</label>
+                <input type="number" id="telha-larg" value="6.0" step="0.5" min="1.0">
+            </div>
+            <div class="form-group">
+                <label>Comprimento do Caimento / Água (m):</label>
+                <input type="number" id="telha-comp" value="4.0" step="0.5" min="1.0">
+            </div>
         </div>
-        <button class="calc-btn" onclick="calcularTelhas()">Dimensionar Telhas</button>
+
+        <div class="grid-2">
+            <div class="form-group">
+                <label>Modelo da Telha:</label>
+                <select id="telha-modelo">
+                    <option value="0.98" selected>Trapezoidal TP40 (Largura útil: 0,98m)</option>
+                    <option value="1.00">Trapezoidal TP25 (Largura útil: 1,00m)</option>
+                    <option value="0.90">Ondulada 17 (Largura útil: 0,90m)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Beiral sugerido (metros):</label>
+                <input type="number" id="telha-beiral" value="0.25" step="0.05" min="0">
+            </div>
+        </div>
+
+        <button class="btn btn-primary" onclick="calcularTelhas()">Dimensionar Telhado & Parafusos</button>
+
         <div id="telha-result" class="result-box" style="display:none;"></div>
     </div>
 
-    <!-- ABA 4: CONVERSOR -->
+    <!-- ABA 4: CONVERSOR MM / POLEGADAS & CHAPAS -->
     <div id="conversor" class="tab-content">
-        <h3>Conversor Técnico: mm <-> Polegadas (Tubos, Perfis, Parafusos e Brocas)</h3>
-        <div class="form-group">
-            <label>Digite a medida em Milímetros (mm):</label>
-            <input type="number" id="conv-mm" value="50.0" step="0.5" oninput="converterMedida()">
+        <div class="section-header">
+            <h2>📏 Conversor Técnico: mm ⇄ Polegadas & Bitolas de Chapas</h2>
+            <p>Conversão precisa com frações comerciais siderúrgicas e tabela padrão de chapas de aço.</p>
         </div>
+
+        <div class="grid-2">
+            <div class="form-group">
+                <label>Digite a medida em Milímetros (mm):</label>
+                <input type="number" id="conv-mm" value="50.8" step="0.1" oninput="converterMmParaPol()">
+            </div>
+            <div class="form-group">
+                <label>Ou escolha a Polegada Comercial:</label>
+                <select id="conv-pol-select" onchange="converterPolParaMm()">
+                    <option value="">Selecione uma fração...</option>
+                    <option value="0.125">1/8" (3,18 mm)</option>
+                    <option value="0.1875">3/16" (4,76 mm)</option>
+                    <option value="0.25">1/4" (6,35 mm)</option>
+                    <option value="0.3125">5/16" (7,94 mm)</option>
+                    <option value="0.375">3/8" (9,53 mm)</option>
+                    <option value="0.5">1/2" (12,70 mm)</option>
+                    <option value="0.625">5/8" (15,88 mm)</option>
+                    <option value="0.75">3/4" (19,05 mm)</option>
+                    <option value="0.875">7/8" (22,23 mm)</option>
+                    <option value="1.0">1" (25,40 mm)</option>
+                    <option value="1.25">1.1/4" (31,75 mm)</option>
+                    <option value="1.5">1.1/2" (38,10 mm)</option>
+                    <option value="2.0" selected>2" (50,80 mm)</option>
+                    <option value="2.5">2.1/2" (63,50 mm)</option>
+                    <option value="3.0">3" (76,20 mm)</option>
+                    <option value="4.0">4" (101,60 mm)</option>
+                </select>
+            </div>
+        </div>
+
         <div id="conv-result" class="result-box">
-            <strong>Resultado:</strong> 50 mm corresponde a <strong>2" (Perfil U / Tubo comercial aproximado)</strong>
+            <strong>Resultado:</strong> 50.8 mm corresponde a <strong>2" (Duas Polegadas - Tubo / Perfil comercial de 50mm)</strong>
+        </div>
+
+        <div style="margin-top: 25px;">
+            <h4 style="color: var(--primary-dark); margin-bottom: 8px;">📑 Tabela Rápida de Bitolas de Chapas de Aço (Padrão Comercial)</h4>
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Nº da Chapa</th>
+                            <th>Espessura Real (mm)</th>
+                            <th>Aplicações Mais Comuns em Balcão</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Chapa 14</strong></td><td>1,95 mm</td><td>Estruturas pesadas, mezaninos, perfis dobrados estruturais</td></tr>
+                        <tr><td><strong>Chapa 16</strong></td><td>1,50 mm</td><td>Tubos industriais, portões reforçados, caixilhos metálicos</td></tr>
+                        <tr><td><strong>Chapa 18</strong></td><td>1,20 mm</td><td>Tubos para serralheria tradicional, portas de enrolar, corrimãos</td></tr>
+                        <tr><td><strong>Chapa 20</strong></td><td>0,90 mm</td><td>Portões leves, lamboris de ferro, calhas e rufos pesados</td></tr>
+                        <tr><td><strong>Chapa 22</strong></td><td>0,75 mm</td><td>Esquadrias leves, calhas, carenagens</td></tr>
+                        <tr><td><strong>Chapa 24</strong></td><td>0,60 mm</td><td>Calhas residenciais leves, rufos, telhas leves</td></tr>
+                        <tr><td><strong>Chapa 26</strong></td><td>0,45 mm</td><td>Telhas galvalume trapezoidais TP40 e onduladas padrão</td></tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
-    <!-- ABA 5: POSTES -->
+    <!-- ABA 5: POSTES ENERGISA -->
     <div id="postes" class="tab-content">
-        <h3>Guia de Postes Completos (Padrão Energisa)</h3>
+        <div class="section-header">
+            <h2>⚡ Guia de Postes Homologados Padrão Energisa (PB)</h2>
+            <p>Lista de materiais completos e kits prontos para ligação e vistoria de entrada de energia em João Pessoa e região.</p>
+        </div>
+
         <div class="form-group">
-            <label>Selecione o Padrão:</label>
+            <label>Selecione a Categoria de Entrada:</label>
             <select id="poste-tipo" onchange="mostrarPostes()">
-                <option value="trifasico">Poste Completo Trifásico</option>
-                <option value="bifasico">Poste Completo Bifásico</option>
-                <option value="monofasico">Poste Completo Monofásico</option>
+                <option value="monofasico">Monofásico Residencial (Até 10 kW / Disjuntor 40A)</option>
+                <option value="bifasico">Bifásico Residencial / Comercial (Até 15 kW / Disjuntor 50A)</option>
+                <option value="trifasico_res" selected>Trifásico Padrão (Até 25 kW / Disjuntor 63A - Mais Vendido)</option>
+                <option value="trifasico_pesado">Trifásico Comercial/Industrial (Carga Alta / Disjuntor 80A a 100A)</option>
             </select>
         </div>
-        <div id="poste-result" class="result-box">
-            <strong>Itens do Trifásico:</strong> Poste de concreto (7m/300daN), Caixa Polifásica, Disjuntor Geral 50A/63A, Eletroduto, Bengala, Haste de aterramento e acessórios padrão Energisa.
-        </div>
+
+        <div id="poste-result" class="result-box"></div>
     </div>
 
-    <!-- ABA 6: FIXADORES -->
+    <!-- ABA 6: FIXADORES & BROCAS -->
     <div id="fixadores" class="tab-content">
-        <h3>Guia Rápido de Fixadores, Buchas e Brocas</h3>
-        <div class="result-box" style="margin-top:0;">
-            • <strong>Parafuso 1/8" (3.2 mm):</strong> Bucha S5 | Chave 5.5mm | Broca 5mm<br>
-            • <strong>Parafuso 3/16" (4.8 mm):</strong> Bucha S6 ou S8 | Chave 8mm | Broca 6mm ou 8mm<br>
-            • <strong>Parafuso 1/4" (6.35 mm):</strong> Bucha S8 ou S10 | Chave 10mm | Broca 8mm<br>
-            • <strong>Parafuso 5/16" (7.94 mm):</strong> Bucha S10 ou S12 | Chave 13mm | Broca 10mm
+        <div class="section-header">
+            <h2>🔩 Guia Prático de Fixadores, Buchas, Brocas e Chaves</h2>
+            <p>Referência rápida de aplicação para serralheria, montagem de coberturas e alvenaria.</p>
+        </div>
+
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Parafuso / Fixador</th>
+                        <th>Bucha / Aplicação</th>
+                        <th>Broca Recomendada</th>
+                        <th>Chave / Bits de Aperto</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Autobrocante 12 × 3/4" ou 12 × 7/8"</strong><br><small>Com arruela EPDM</small></td>
+                        <td>Fixação de telha trapezoidal em terça metálica</td>
+                        <td>Fura direto (Ponta broca para ferro até 4mm)</td>
+                        <td>Canhão Magnético <strong>5/16"</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Autobrocante Costura 1/4 × 7/8"</strong></td>
+                        <td>Costura entre abas de telhas (sobreposição)</td>
+                        <td>Fura direto</td>
+                        <td>Canhão Magnético <strong>3/8"</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Brocante Flangeado 4,2 × 13 mm</strong></td>
+                        <td>Forro PVC no metalon ou perfis finos</td>
+                        <td>Fura direto (Ponta broca fina)</td>
+                        <td>Ponteira Philips PH2</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Parafuso Chipboard / Drywall 3,5 × 25 mm</strong></td>
+                        <td>Forro PVC ou gesso em perfis finos</td>
+                        <td>Ponta agulha</td>
+                        <td>Ponteira Philips PH2</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Parafuso Sextavado 1/4" × 50 mm</strong></td>
+                        <td>Bucha S8 (Alvenaria / Tijolo maciço)</td>
+                        <td>Broca de Vídia <strong>8 mm</strong></td>
+                        <td>Chave <strong>10 mm</strong> ou 7/16"</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Parafuso Sextavado 5/16" × 60 mm</strong></td>
+                        <td>Bucha S10 (Fixação pesada, portões, suportes)</td>
+                        <td>Broca de Vídia <strong>10 mm</strong></td>
+                        <td>Chave <strong>13 mm</strong> ou 1/2"</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Parafuso Sextavado 3/8" × 75 mm</strong></td>
+                        <td>Bucha S12 ou Chumbador Mecânico PBA</td>
+                        <td>Broca de Vídia <strong>12 mm</strong></td>
+                        <td>Chave <strong>14 mm / 9/16"</strong></td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
 
+<!-- Elemento Toast Flutuante -->
+<div id="toast"></div>
+
 <script>
     const API_ENDPOINT = "https://api.groq.com/openai/v1/chat/completions";
+    const SYSTEM_PROMPT = `Você é um assistente virtual especialista em atendimento de balcão para a distribuidora Aço Forte em João Pessoa / PB.
+Você domina perfis de ferro e aço (metalon, cantoneiras, perfil U simples e enrijecido, vigas I/W, tubos industriais), telhas trapezoidais galvalume (TP40/TP25), forro de PVC e seus acabamentos, kits de postes homologados pela Energisa Paraíba, arames, telas e parafusos autobrocantes e sextavados.
+Seja sempre prático, direto, cortês e forneça orientações técnicas confiáveis para o atendente passar ao cliente. Use formatação limpa em tópicos quando listar quantidades ou dicas técnicas.`;
 
-    // Carregar a chave salva ao abrir a página
+    // Histórico de Conversa com a IA
+    let historicoConversa = [
+        { role: "system", content: SYSTEM_PROMPT }
+    ];
+
+    // Ao Carregar a Página
     window.onload = function() {
-        let savedKey = localStorage.getItem("grok_api_key");
-        if(savedKey) {
-            document.getElementById('api-key-input').value = savedKey;
-        }
+        carregarChave();
+        mostrarPostes();
+        converterMmParaPol();
     };
 
-    function salvarChave(val) {
-        localStorage.setItem("grok_api_key", val.trim());
-        alert("Chave da API salva com sucesso no navegador!");
+    // Controle de Toast
+    function showToast(mensagem, tipo = 'info') {
+        const toast = document.getElementById('toast');
+        toast.className = `show ${tipo}`;
+        toast.innerText = mensagem;
+        setTimeout(() => {
+            toast.className = toast.className.replace('show', '').trim();
+        }, 3200);
+    }
+
+    // Gerenciamento de Chave Groq e Modelos
+    function getModeloSelecionado() {
+        const select = document.getElementById('select-groq-model');
+        return (select && select.value) ? select.value : "llama-3.3-70b-versatile";
+    }
+
+    function salvarModeloSelecionado(modelo) {
+        localStorage.setItem("groq_selected_model", modelo);
+        showToast(`Modelo alterado para ${modelo}`, "info");
+    }
+
+    function carregarChave() {
+        const savedKey = localStorage.getItem("grok_api_key");
+        const dot = document.getElementById('key-dot');
+        const text = document.getElementById('key-status-text');
+        const input = document.getElementById('api-key-input');
+        const selectModel = document.getElementById('select-groq-model');
+
+        // Carrega ou migra modelo padrão para Llama 3.3 70B
+        let savedModel = localStorage.getItem("groq_selected_model");
+        if (selectModel) {
+            if (savedModel && savedModel !== "llama-3.1-8b-instant") {
+                selectModel.value = savedModel;
+            } else {
+                selectModel.value = "llama-3.3-70b-versatile";
+                localStorage.setItem("groq_selected_model", "llama-3.3-70b-versatile");
+            }
+        }
+
+        if (savedKey && savedKey.trim().length > 5) {
+            input.value = savedKey;
+            dot.className = "status-dot";
+            text.innerText = "Chave API Ativa";
+            // Sincroniza modelos disponíveis em background
+            buscarModelosAtivos(false);
+        } else {
+            dot.className = "status-dot off";
+            text.innerText = "Chave API Ausente";
+        }
+    }
+
+    async function buscarModelosAtivos(notificar = true) {
+        const apiKey = localStorage.getItem("grok_api_key");
+        if (!apiKey) {
+            if (notificar) showToast("Insira e salve sua chave antes de sincronizar.", "error");
+            return;
+        }
+
+        try {
+            if (notificar) showToast("Consultando modelos disponíveis na Groq...", "info");
+            const resp = await fetch("https://api.groq.com/openai/v1/models", {
+                headers: { "Authorization": `Bearer ${apiKey.trim()}` }
+            });
+
+            if (!resp.ok) return;
+
+            const dados = await resp.json();
+            if (dados.data && Array.isArray(dados.data)) {
+                // Filtra apenas modelos text/chat ativos
+                const modelosChat = dados.data
+                    .map(m => m.id)
+                    .filter(id => !id.includes("whisper") && !id.includes("guard") && !id.includes("embed") && !id.includes("vision"))
+                    .sort();
+
+                if (modelosChat.length > 0) {
+                    const select = document.getElementById('select-groq-model');
+                    const modeloSalvo = localStorage.getItem("groq_selected_model") || "llama-3.3-70b-versatile";
+                    
+                    select.innerHTML = "";
+                    for (const mod of modelosChat) {
+                        const opt = document.createElement("option");
+                        opt.value = mod;
+                        let label = mod;
+                        if (mod === "llama-3.3-70b-versatile") label = `⚡ ${mod} (Recomendado)`;
+                        opt.textContent = label;
+                        if (mod === modeloSalvo) opt.selected = true;
+                        select.appendChild(opt);
+                    }
+
+                    if (!modelosChat.includes(select.value)) {
+                        if (modelosChat.includes("llama-3.3-70b-versatile")) {
+                            select.value = "llama-3.3-70b-versatile";
+                        } else {
+                            select.value = modelosChat[0];
+                        }
+                    }
+                    localStorage.setItem("groq_selected_model", select.value);
+                    if (notificar) showToast(`Sincronizado! ${modelosChat.length} modelos detectados.`, "success");
+                }
+            }
+        } catch (e) {
+            console.warn("Não foi possível listar modelos automaticamente:", e);
+        }
+    }
+
+    function trocarParaModeloRecomendado() {
+        const select = document.getElementById('select-groq-model');
+        if (select) {
+            select.value = "llama-3.3-70b-versatile";
+            localStorage.setItem("groq_selected_model", "llama-3.3-70b-versatile");
+        }
+        showToast("Modelo alterado para Llama 3.3 70B! Reenviando...", "info");
+
+        // Recupera última mensagem do usuário para reenvio automático
+        if (historicoConversa.length > 1) {
+            const ultimaMsg = historicoConversa[historicoConversa.length - 1];
+            if (ultimaMsg.role === "user") {
+                historicoConversa.pop(); // Remove para não duplicar
+                document.getElementById('user-input').value = ultimaMsg.content;
+                enviarMensagem();
+            }
+        }
+    }
+
+    function salvarChaveManual() {
+        const val = document.getElementById('api-key-input').value.trim();
+        if (!val) {
+            showToast("Por favor, digite ou cole uma chave válida.", "error");
+            return;
+        }
+        localStorage.setItem("grok_api_key", val);
+        carregarChave();
+        showToast("Chave salva com sucesso no navegador!", "success");
+        buscarModelosAtivos(true);
+    }
+
+    function removerChaveManual() {
+        if (confirm("Deseja remover a chave salva do navegador?")) {
+            localStorage.removeItem("grok_api_key");
+            document.getElementById('api-key-input').value = "";
+            carregarChave();
+            showToast("Chave removida.", "info");
+        }
+    }
+
+    function toggleChaveVisivel() {
+        const input = document.getElementById('api-key-input');
+        const btn = document.getElementById('btn-toggle-eye');
+        if (input.type === 'password') {
+            input.type = 'text';
+            btn.innerText = "🙈 Ocultar";
+        } else {
+            input.type = 'password';
+            btn.innerText = "👁️ Ver";
+        }
     }
 
     // Controle de Abas
     function switchTab(evt, tabName) {
-        let contents = document.getElementsByClassName("tab-content");
+        const contents = document.getElementsByClassName("tab-content");
         for (let c of contents) c.classList.remove("active");
 
-        let buttons = document.getElementsByClassName("tab-btn");
+        const buttons = document.getElementsByClassName("tab-btn");
         for (let b of buttons) b.classList.remove("active");
 
         document.getElementById(tabName).classList.add("active");
         evt.currentTarget.classList.add("active");
     }
 
-    // Cálculo PVC
-    function calcularPVC() {
-        let comp = parseFloat(document.getElementById('pvc-comp').value);
-        let larg = parseFloat(document.getElementById('pvc-larg').value);
-        let regua = parseFloat(document.getElementById('pvc-regua').value);
-
-        let areaAmbiente = comp * larg;
-        let areaFolha = regua * 0.20; 
-        let qtdFolhas = Math.ceil(areaAmbiente / areaFolha);
-        let totalM2 = qtdFolhas * areaFolha;
-
-        let res = document.getElementById('pvc-result');
-        res.style.display = 'block';
-        res.innerHTML = `<strong>Resultado:</strong><br>
-            • Área do ambiente: ${areaAmbiente.toFixed(2)} m²<br>
-            • Quantidade de folhas (${regua}m): <strong>${qtdFolhas} folhas</strong><br>
-            • Total de M² correspondente à venda: ${totalM2.toFixed(2)} m²`;
+    // ==========================================
+    // CHAT DE IA COM STREAMING E HISTÓRICO
+    // ==========================================
+    function escapeHtml(texto) {
+        const div = document.createElement('div');
+        div.textContent = texto;
+        return div.innerHTML;
     }
 
-    // Cálculo Telhas
-    function calcularTelhas() {
-        let larg = parseFloat(document.getElementById('telha-larg').value);
-        let comp = parseFloat(document.getElementById('telha-comp').value);
-
-        let qtdLados = Math.ceil(larg / 1.00);
-        let compComBeiral = comp + 0.20;
-        let compComercial = Math.ceil(compComBeiral * 2) / 2;
-
-        let res = document.getElementById('telha-result');
-        res.style.display = 'block';
-        res.innerHTML = `<strong>Dimensionamento de Telhas:</strong><br>
-            • Peças lado a lado: <strong>${qtdLados} peças</strong><br>
-            • Comprimento sugerido com beiral: ${compComBeiral.toFixed(2)}m<br>
-            • Sugestão comercial de folha: Próximo a ${compComercial}m (Disponível de 2m até 6m)`;
-    }
-
-    // Conversor mm <-> Pol
-    function converterMedida() {
-        let mm = parseFloat(document.getElementById('conv-mm').value);
-        let res = document.getElementById('conv-result');
-        
-        let texto = "";
-        if (Math.abs(mm - 50.8) < 2 || Math.abs(mm - 50) < 2) {
-            texto = `<strong>Resultado:</strong> ${mm} mm corresponde a <strong>2" (Perfil U de 50mm / Tubo 2 polegadas)</strong>`;
-        } else if (Math.abs(mm - 25.4) < 2) {
-            texto = `<strong>Resultado:</strong> ${mm} mm corresponde a <strong>1 polegada (1")</strong>`;
-        } else if (Math.abs(mm - 12.7) < 2) {
-            texto = `<strong>Resultado:</strong> ${mm} mm corresponde a <strong>1/2 polegada (1/2")</strong>`;
-        } else if (Math.abs(mm - 19.05) < 2) {
-            texto = `<strong>Resultado:</strong> ${mm} mm corresponde a <strong>3/4 polegada (3/4")</strong>`;
-        } else {
-            let pol = (mm / 25.4).toFixed(3);
-            texto = `<strong>Resultado:</strong> ${mm} mm equivalem a aproximadamente <strong>${pol} polegadas</strong>`;
+    function renderMarkdown(texto) {
+        if (window.marked && window.DOMPurify) {
+            const rawHtml = marked.parse(texto);
+            return DOMPurify.sanitize(rawHtml);
         }
-        res.innerHTML = texto;
+        return escapeHtml(texto).replace(/\n/g, '<br>');
     }
 
-    // Guia de Postes Padrão Energisa
-    function mostrarPostes() {
-        let tipo = document.getElementById('poste-tipo').value;
-        let res = document.getElementById('poste-result');
-        if (tipo === 'trifasico') {
-            res.innerHTML = '<strong>Itens do Trifásico:</strong> Poste de concreto (7m/300daN), Caixa Polifásica, Disjuntor Geral 50A/63A, Eletroduto, Bengala, Haste de aterramento e acessórios padrão Energisa.';
-        } else if (tipo === 'bifasico') {
-            res.innerHTML = '<strong>Itens do Bifásico:</strong> Poste de concreto (7m), Caixa Bifásica, Disjuntor Geral 40A/50A, Eletroduto, Bengala e Haste de aterramento padrão Energisa.';
-        } else {
-            res.innerHTML = '<strong>Itens do Monofásico:</strong> Poste de concreto (6m/7m), Caixa Monofásica, Disjuntor Geral 30A/40A, Eletroduto, Bengala e Haste de aterramento padrão Energisa.';
-        }
+    function limparHistoricoChat() {
+        if (!confirm("Deseja limpar todo o histórico da conversa atual?")) return;
+        historicoConversa = [{ role: "system", content: SYSTEM_PROMPT }];
+        const chatMessages = document.getElementById('chat-messages');
+        chatMessages.innerHTML = `
+            <div class="message-wrapper ai">
+                <span class="message-sender">Assistente Aço Forte</span>
+                <div class="message ai">
+                    Conversa reiniciada. Em que posso ajudar você agora?
+                </div>
+            </div>`;
+        showToast("Conversa limpa com sucesso!", "info");
     }
 
-    // Chat com IA Groq (Modelo Llama 3.1 8B Instant atualizado)
+    function copiarTexto(texto) {
+        navigator.clipboard.writeText(texto).then(() => {
+            showToast("Texto copiado para a área de transferência!", "success");
+        }).catch(() => {
+            showToast("Não foi possível copiar automaticamente.", "error");
+        });
+    }
+
     async function enviarMensagem() {
-        let apiKey = localStorage.getItem("grok_api_key");
+        const apiKey = localStorage.getItem("grok_api_key");
         if (!apiKey) {
-            alert("Por favor, insira e salve sua Chave da API da Groq no campo acima antes de usar o chat!");
+            showToast("Adicione e salve sua chave Groq no topo antes de enviar!", "error");
+            document.getElementById('api-key-input').focus();
             return;
         }
 
-        let input = document.getElementById('user-input');
-        let texto = input.value.trim();
-        if(!texto) return;
+        const input = document.getElementById('user-input');
+        const btnEnviar = document.getElementById('btn-enviar');
+        const texto = input.value.trim();
+        if (!texto) return;
 
-        let chatMessages = document.getElementById('chat-messages');
-        
-        chatMessages.innerHTML += `<div class="message user">${texto}</div>`;
+        const chatMessages = document.getElementById('chat-messages');
+
+        // Renderiza mensagem do usuário protegida contra XSS
+        const userWrapper = document.createElement('div');
+        userWrapper.className = 'message-wrapper user';
+        userWrapper.innerHTML = `
+            <span class="message-sender">Atendente</span>
+            <div class="message user">${escapeHtml(texto)}</div>
+        `;
+        chatMessages.appendChild(userWrapper);
+
+        // Limpa input e rola
         input.value = "";
+        input.disabled = true;
+        btnEnviar.disabled = true;
         chatMessages.scrollTop = chatMessages.scrollHeight;
 
-        let loadingId = "loading-" + Date.now();
-        chatMessages.innerHTML += `<div id="${loadingId}" class="message ai">Consultando assistente...</div>`;
+        // Adiciona ao histórico (limitando a 12 interações recentes para economizar tokens)
+        historicoConversa.push({ role: "user", content: texto });
+        if (historicoConversa.length > 13) {
+            historicoConversa = [
+                historicoConversa[0],
+                ...historicoConversa.slice(historicoConversa.length - 12)
+            ];
+        }
+
+        // Cria elemento da IA com indicador de digitação
+        const aiWrapper = document.createElement('div');
+        aiWrapper.className = 'message-wrapper ai';
+        const msgDiv = document.createElement('div');
+        msgDiv.className = 'message ai';
+        msgDiv.innerHTML = `
+            <div class="typing-indicator">
+                <span class="typing-dot"></span>
+                <span class="typing-dot"></span>
+                <span class="typing-dot"></span>
+            </div>
+        `;
+        aiWrapper.innerHTML = `<span class="message-sender">Assistente Aço Forte</span>`;
+        aiWrapper.appendChild(msgDiv);
+        chatMessages.appendChild(aiWrapper);
         chatMessages.scrollTop = chatMessages.scrollHeight;
+
+        let respostaCompleta = "";
+        const modeloEscolhido = getModeloSelecionado();
 
         try {
-            let resposta = await fetch(API_ENDPOINT, {
+            const response = await fetch(API_ENDPOINT, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": `Bearer ${apiKey}`
+                    "Authorization": `Bearer ${apiKey.trim()}`
                 },
                 body: JSON.stringify({
-                    model: "llama-3.1-8b-instant", // Modelo garantido e ativo na Groq
-                    messages: [
-                        {
-                            role: "system", 
-                            content: "Você é um assistente virtual especialista em atendimento de balcão para uma distribuidora de aços, alumínios, telhas trapezoidais, forro de PVC, postes padrão Energisa e materiais de construção em João Pessoa chamada Aço Forte. Ajude o atendente com orientações técnicas, conversões, brocas, buchas e esclarecimentos de produtos."
-                        },
-                        {
-                            role: "user", 
-                            content: texto
-                        }
-                    ],
-                    temperature: 0.7
+                    model: modeloEscolhido,
+                    messages: historicoConversa,
+                    temperature: 0.6,
+                    stream: true
                 })
             });
 
-            let dados = await resposta.json();
-            document.getElementById(loadingId).remove();
-
-            if (!resposta.ok) {
-                let erroDetalhe = dados.error ? dados.error.message : "Erro desconhecido";
-                chatMessages.innerHTML += `<div class="message ai" style="background: #fee2e2; color: #991b1b;"><strong>Erro da API (${resposta.status}):</strong> ${erroDetalhe}</div>`;
+            if (!response.ok) {
+                const erroData = await response.json().catch(() => ({}));
+                const msgErro = erroData.error ? erroData.error.message : `Erro HTTP ${response.status}`;
+                
+                // Tratamento específico quando o modelo selecionado não existe na Groq
+                if (msgErro.includes("does not exist") || msgErro.includes("access")) {
+                    msgDiv.innerHTML = `
+                        <div style="background: #fee2e2; border: 1px solid #fca5a5; padding: 12px; border-radius: 8px; color: #991b1b;">
+                            <strong>⚠️ Modelo Indisponível (${escapeHtml(modeloEscolhido)}):</strong>
+                            <p style="margin: 6px 0; font-size: 0.88rem;">O modelo <code>${escapeHtml(modeloEscolhido)}</code> foi descontinuado ou não está ativo na sua conta da Groq.</p>
+                            <button class="btn btn-primary" style="padding: 7px 14px; font-size: 0.85rem; margin-top: 4px;" onclick="trocarParaModeloRecomendado()">
+                                ⚡ Mudar para Llama 3.3 70B e Reenviar
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    msgDiv.innerHTML = `<div style="color: var(--danger);"><strong>Erro na requisição:</strong> ${escapeHtml(msgErro)}</div>`;
+                }
                 return;
             }
 
-            if (dados.choices && dados.choices.length > 0) {
-                let respostaIA = dados.choices[0].message.content;
-                chatMessages.innerHTML += `<div class="message ai">${respostaIA}</div>`;
-            } else {
-                chatMessages.innerHTML += `<div class="message ai">A resposta da API veio vazia.</div>`;
+            // Leitura com ReadableStream para efeito de digitação em tempo real
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder("utf-8");
+            let buffer = "";
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+
+                buffer += decoder.decode(value, { stream: true });
+                const lines = buffer.split("\n");
+                buffer = lines.pop(); // Mantém linha incompleta no buffer
+
+                for (const line of lines) {
+                    const trimmed = line.trim();
+                    if (!trimmed || !trimmed.startsWith("data:")) continue;
+                    if (trimmed === "data: [DONE]") break;
+
+                    try {
+                        const json = JSON.parse(trimmed.replace(/^data:\s*/, ""));
+                        const delta = json.choices?.[0]?.delta?.content;
+                        if (delta) {
+                            respostaCompleta += delta;
+                            msgDiv.innerHTML = renderMarkdown(respostaCompleta);
+                            chatMessages.scrollTop = chatMessages.scrollHeight;
+                        }
+                    } catch (e) {
+                        // Linha parcial ou formato irregular ignorado
+                    }
+                }
             }
 
-        } catch (erro) {
-            document.getElementById(loadingId).remove();
-            chatMessages.innerHTML += `<div class="message ai" style="background: #fee2e2; color: #991b1b;"><strong>Erro de Rede / CORS:</strong> Não foi possível conectar ao servidor da Groq.</div>`;
-            console.error(erro);
-        }
+            if (!respostaCompleta.trim()) {
+                msgDiv.innerHTML = "<em>(Resposta sem conteúdo retornado pela API)</em>";
+            } else {
+                // Guarda resposta no histórico
+                historicoConversa.push({ role: "assistant", content: respostaCompleta });
 
-        chatMessages.scrollTop = chatMessages.scrollHeight;
+                // Adiciona botão para copiar resposta
+                const actionsDiv = document.createElement('div');
+                actionsDiv.className = 'message-actions';
+                actionsDiv.innerHTML = `<button class="btn-msg-copy" onclick="copiarTexto(${JSON.stringify(respostaCompleta)})">📋 Copiar Resposta</button>`;
+                aiWrapper.appendChild(actionsDiv);
+            }
+
+        } catch (err) {
+            console.error(err);
+            msgDiv.innerHTML = `<div style="color: var(--danger);"><strong>Falha de conexão / CORS:</strong> Verifique sua internet ou a validade da chave Groq.</div>`;
+        } finally {
+            input.disabled = false;
+            btnEnviar.disabled = false;
+            input.focus();
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
     }
 
     function handleKeyPress(e) {
-        if(e.key === 'Enter') {
+        if (e.key === 'Enter') {
             enviarMensagem();
         }
+    }
+
+    // ==========================================
+    // CÁLCULO DE FORRO PVC COMPLETO
+    // ==========================================
+    function calcularPVC() {
+        const comp = parseFloat(document.getElementById('pvc-comp').value) || 0;
+        const larg = parseFloat(document.getElementById('pvc-larg').value) || 0;
+        const reguaComprimento = parseFloat(document.getElementById('pvc-regua').value) || 6.0;
+        const larguraFolha = parseFloat(document.getElementById('pvc-largura-folha').value) || 0.20;
+        const fatorPerda = parseFloat(document.getElementById('pvc-perda').value) || 0.10;
+
+        if (comp <= 0 || larg <= 0) {
+            showToast("Informe medidas válidas de comprimento e largura.", "error");
+            return;
+        }
+
+        const areaAmbiente = comp * larg;
+        const areaComPerda = areaAmbiente * (1 + fatorPerda);
+        const areaFolhaUnitaria = reguaComprimento * larguraFolha;
+        const qtdFolhas = Math.ceil(areaComPerda / areaFolhaUnitaria);
+        const totalM2Venda = (qtdFolhas * areaFolhaUnitaria).toFixed(2);
+
+        // Perímetro para rodaforro (moldura tipo U ou cantoneira)
+        const perimetro = (2 * (comp + larg)).toFixed(2);
+        const barrasMoldura3m = Math.ceil(perimetro / 3.0);
+        const barrasMoldura6m = Math.ceil(perimetro / 6.0);
+
+        // Estrutura metálica de apoio (Metalon a cada 50cm / 0.5m no menor vão)
+        const menorVao = Math.min(comp, larg);
+        const maiorVao = Math.max(comp, larg);
+        const linhasDeApoio = Math.ceil(maiorVao / 0.50);
+        const metrosMetalon = (linhasDeApoio * menorVao).toFixed(1);
+        const barrasMetalon6m = Math.ceil(metrosMetalon / 6.0);
+
+        // Parafusos flangeados ponta agulha e buchas
+        const parafusosPontaAgulha = Math.ceil(qtdFolhas * 15);
+        const buchasFixacaoTeto = Math.ceil(linhasDeApoio * (menorVao / 1.0));
+
+        const textoWhats = `*ORÇAMENTO DE FORRO PVC — AÇO FORTE*\n` +
+            `📍 Ambiente: ${comp}m × ${larg}m (${areaAmbiente.toFixed(2)} m²)\n` +
+            `-----------------------------------\n` +
+            `▫️ *Lâminas PVC (${reguaComprimento}m × ${larguraFolha*100}cm):* ${qtdFolhas} réguas (~${totalM2Venda} m²)\n` +
+            `▫️ *Rodaforro / Moldura U:* ${barrasMoldura6m} barras de 6m (ou ${barrasMoldura3m} de 3m) [Perímetro: ${perimetro}m]\n` +
+            `▫️ *Estrutura de Apoio (Metalon):* ~${barrasMetalon6m} barras de 6m (~${metrosMetalon} metros lineares)\n` +
+            `▫️ *Parafusos Flangeados:* ~${parafusosPontaAgulha} un (Ponta Agulha GN25 / 4.2x13)\n` +
+            `▫️ *Buchas c/ Parafuso teto:* ~${buchasFixacaoTeto} un (Bucha S6)\n` +
+            `-----------------------------------\n` +
+            `_Cálculo inclui margem técnica de ${(fatorPerda*100).toFixed(0)}% para recortes._`;
+
+        const res = document.getElementById('pvc-result');
+        res.style.display = 'block';
+        res.innerHTML = `
+            <h4>📋 Resumo do Orçamento de PVC</h4>
+            <ul>
+                <li><strong>Área do Teto:</strong> ${areaAmbiente.toFixed(2)} m² (Considerando ${(fatorPerda*100).toFixed(0)}% de perda: <strong>${areaComPerda.toFixed(2)} m²</strong>)</li>
+                <li><strong>Quantidade de Lâminas (${reguaComprimento}m):</strong> <span class="result-highlight">${qtdFolhas} réguas</span> (Total Faturado: ${totalM2Venda} m²)</li>
+                <li><strong>Rodaforro / Moldura Perimetral:</strong> ${perimetro} metros lineares ➔ <strong>${barrasMoldura6m} barras de 6m</strong> (ou ${barrasMoldura3m} de 3m)</li>
+                <li><strong>Estrutura de Sustentação (Metalon 15×15 / 20×20):</strong> ~${metrosMetalon}m lineares ➔ <strong>${barrasMetalon6m} barras de 6m</strong></li>
+                <li><strong>Fixadores Recomendados:</strong> ~${parafusosPontaAgulha} un Parafuso Flangeado Ponta Agulha + ~${buchasFixacaoTeto} un Buchas S6 para o teto.</li>
+            </ul>
+            <div class="btn-row">
+                <button class="btn btn-whatsapp" onclick="copiarTexto(${JSON.stringify(textoWhats)})">
+                    📲 Copiar para WhatsApp
+                </button>
+            </div>
+        `;
+    }
+
+    // ==========================================
+    // CÁLCULO DE TELHAS TRAPEZOIDAIS
+    // ==========================================
+    function calcularTelhas() {
+        const aguas = parseInt(document.getElementById('telha-aguas').value) || 1;
+        const larg = parseFloat(document.getElementById('telha-larg').value) || 0;
+        const comp = parseFloat(document.getElementById('telha-comp').value) || 0;
+        const larguraUtil = parseFloat(document.getElementById('telha-modelo').value) || 0.98;
+        const beiral = parseFloat(document.getElementById('telha-beiral').value) || 0.25;
+
+        if (larg <= 0 || comp <= 0) {
+            showToast("Informe medidas válidas de testada e caimento.", "error");
+            return;
+        }
+
+        // Quantidade de telhas lado a lado
+        const qtdPorAgua = Math.ceil(larg / larguraUtil);
+        const qtdTotalFolhas = qtdPorAgua * aguas;
+
+        // Comprimento de cada telha com beiral
+        const compTotalReal = comp + beiral;
+        // Arredondamento comercial para múltiplos de 0.50m
+        const compComercialSugerido = (Math.ceil(compTotalReal * 2) / 2).toFixed(2);
+
+        const areaReal = (larg * comp * aguas).toFixed(2);
+
+        // Parafusos autobrocantes: ~4 parafusos de fixação em terças por m² + ~1 de costura por metro linear
+        const parafusosFixacao = Math.ceil(areaReal * 4);
+        const parafusosCostura = Math.ceil((qtdTotalFolhas * compTotalReal) * 0.8);
+        const totalParafusos = parafusosFixacao + parafusosCostura;
+
+        // Cumeeira se for 2 águas
+        const metrosCumeeira = aguas === 2 ? larg.toFixed(2) : 0;
+        const pecasCumeeira = aguas === 2 ? Math.ceil(larg / 1.0) : 0; // Cumeeiras normalmente têm 1.0m útil
+
+        let textoWhats = `*ORÇAMENTO DE TELHAS TRAPEZOIDAIS — AÇO FORTE*\n` +
+            `📍 Tipo: ${aguas} Água(s) | Área total: ${areaReal} m²\n` +
+            `-----------------------------------\n` +
+            `▫️ *Quantidade de Telhas:* ${qtdTotalFolhas} peças (${qtdPorAgua} un por água)\n` +
+            `▫️ *Comprimento Sugerido:* ${compComercialSugerido} metros (Com ${beiral*100}cm de beiral)\n` +
+            `▫️ *Parafusos Autobrocantes 12×3/4" c/ Vedação:* ~${parafusosFixacao} un (Fixação em terças)\n` +
+            `▫️ *Parafusos de Costura 1/4×7/8":* ~${parafusosCostura} un (Sobreposição)\n`;
+
+        if (aguas === 2) {
+            textoWhats += `▫️ *Cumeeira Trapezoidal:* ~${pecasCumeeira} peças de 1m (${metrosCumeeira}m lineares)\n`;
+        }
+
+        textoWhats += `-----------------------------------\n` +
+            `_Dica técnica: Caimento mínimo recomendado de 10% a 15% para telha TP40._`;
+
+        const res = document.getElementById('telha-result');
+        res.style.display = 'block';
+        res.innerHTML = `
+            <h4>📋 Dimensionamento de Cobertura</h4>
+            <ul>
+                <li><strong>Área de Cobertura:</strong> ${areaReal} m² (${aguas} caimento(s))</li>
+                <li><strong>Quantidade de Telhas:</strong> <span class="result-highlight">${qtdTotalFolhas} telhas</span> (${qtdPorAgua} peças lado a lado por queda)</li>
+                <li><strong>Comprimento Recomendado da Telha:</strong> <span class="result-highlight">${compComercialSugerido} metros</span> (Caimento ${comp}m + ${beiral}m de beiral)</li>
+                ${aguas === 2 ? `<li><strong>Cumeeiras Trapezoidais:</strong> ${metrosCumeeira}m ➔ <strong>${pecasCumeeira} peças de 1 metro</strong></li>` : ''}
+                <li><strong>Fixadores Necessários:</strong>
+                    <ul>
+                        <li>Fixação em Terças (Autobrocante 12×3/4" c/ EPDM): <strong>~${parafusosFixacao} unidades</strong></li>
+                        <li>Costura de Abas (Autobrocante 1/4×7/8"): <strong>~${parafusosCostura} unidades</strong></li>
+                        <li>Total estimado de fixadores: <strong>~${totalParafusos} parafusos</strong></li>
+                    </ul>
+                </li>
+            </ul>
+            <div class="btn-row">
+                <button class="btn btn-whatsapp" onclick="copiarTexto(${JSON.stringify(textoWhats)})">
+                    📲 Copiar para WhatsApp
+                </button>
+            </div>
+        `;
+    }
+
+    // ==========================================
+    // CONVERSOR MM / POLEGADAS
+    // ==========================================
+    const tabelaPolegadas = [
+        { pol: '1/8"', dec: 0.125, mm: 3.175, uso: 'Chavetas, rebites finos' },
+        { pol: '5/32"', dec: 0.15625, mm: 3.969, uso: 'Parafusos finos' },
+        { pol: '3/16"', dec: 0.1875, mm: 4.763, uso: 'Ferro de estribo 4.2/4.8mm, bucha S6/S8' },
+        { pol: '1/4"', dec: 0.25, mm: 6.35, uso: 'Tubo 1/4", barra 6.3mm, bucha S8' },
+        { pol: '5/16"', dec: 0.3125, mm: 7.938, uso: 'Ferro 8mm, parafuso sextavado, bucha S10' },
+        { pol: '3/8"', dec: 0.375, mm: 9.525, uso: 'Ferro 10mm estrutural, tubos e barras' },
+        { pol: '1/2"', dec: 0.5, mm: 12.7, uso: 'Tubo 1/2", barra roscada, eletroduto' },
+        { pol: '5/8"', dec: 0.625, mm: 15.875, uso: 'Ferro 16mm, haste de aterramento 5/8' },
+        { pol: '3/4"', dec: 0.75, mm: 19.05, uso: 'Tubo 3/4", eletroduto, ferragens pesadas' },
+        { pol: '7/8"', dec: 0.875, mm: 22.225, uso: 'Tubo industrial, eixos' },
+        { pol: '1"', dec: 1.0, mm: 25.4, uso: 'Tubo 1 polegada, perfil de sustentação' },
+        { pol: '1.1/4"', dec: 1.25, mm: 31.75, uso: 'Tubo 1.1/4", poste padrão leve' },
+        { pol: '1.1/2"', dec: 1.5, mm: 38.1, uso: 'Tubo 1.1/2", corrimão, bengala' },
+        { pol: '2"', dec: 2.0, mm: 50.8, uso: 'Tubo 2", perfil U 50x25 / 50x30' },
+        { pol: '2.1/2"', dec: 2.5, mm: 63.5, uso: 'Tubo industrial 2.1/2", conexões pesadas' },
+        { pol: '3"', dec: 3.0, mm: 76.2, uso: 'Tubo 3", vigas e esteios' },
+        { pol: '4"', dec: 4.0, mm: 101.6, uso: 'Tubo 4", perfil U 100mm estrutural' }
+    ];
+
+    function converterMmParaPol() {
+        const mm = parseFloat(document.getElementById('conv-mm').value);
+        const res = document.getElementById('conv-result');
+
+        if (isNaN(mm) || mm <= 0) {
+            res.innerHTML = "<em>Digite um valor válido em milímetros.</em>";
+            return;
+        }
+
+        // Acha a polegada mais próxima
+        let maisProxima = tabelaPolegadas[0];
+        let menorDif = Math.abs(mm - maisProxima.mm);
+
+        for (let item of tabelaPolegadas) {
+            const dif = Math.abs(mm - item.mm);
+            if (dif < menorDif) {
+                menorDif = dif;
+                maisProxima = item;
+            }
+        }
+
+        const polDecimal = (mm / 25.4).toFixed(3);
+
+        res.innerHTML = `
+            <strong>Conversão:</strong> ${mm} mm equivalem a <strong>${polDecimal}"</strong> (decimal).<br>
+            • Fração Comercial Mais Próxima: <span class="result-highlight">${maisProxima.pol}</span> (${maisProxima.mm.toFixed(2)} mm)<br>
+            • Diferença para a fração exata: ${menorDif.toFixed(2)} mm<br>
+            • Aplicação comum no balcão: <em>${maisProxima.uso}</em>
+        `;
+    }
+
+    function converterPolParaMm() {
+        const select = document.getElementById('conv-pol-select');
+        const dec = parseFloat(select.value);
+        if (!dec) return;
+
+        const mm = (dec * 25.4).toFixed(2);
+        document.getElementById('conv-mm').value = mm;
+        converterMmParaPol();
+    }
+
+    // ==========================================
+    // GUIA POSTES ENERGISA (PB)
+    // ==========================================
+    const dadosPostes = {
+        monofasico: {
+            titulo: "Poste Completo Monofásico (Até 10 kW / Disjuntor 40A)",
+            itens: [
+                "1× Poste de Concreto Homologado Energisa (6m ou 7m - 150/200 daN)",
+                "1× Caixa de Medição Monofásica em Policarbonato Padrão Energisa PB",
+                "1× Disjuntor Bipolar DIN 40A curva C",
+                "1× Haste de Aterramento Cobreada 5/8\" × 2,40m c/ Conector",
+                "1× Caixa de Inspeção de Aterramento (Solo)",
+                "Cabo de Cobre Flexível 10 mm² (Fase, Neutro e Terra)",
+                "Eletroduto de PVC Rígido 3/4\" ou 1\" + Bengala de Entrada",
+                "Armação secundária 1 estribo, roldana de louça/polímero e cinta para poste"
+            ],
+            obs: "Ideal para residências padrão com consumo básico sem chuveiro elétrico de alta potência ou múltiplos aparelhos de ar-condicionado."
+        },
+        bifasico: {
+            titulo: "Poste Completo Bifásico (Até 15 kW / Disjuntor 50A)",
+            itens: [
+                "1× Poste de Concreto Homologado Energisa (7m - 200 daN)",
+                "1× Caixa de Medição Bifásica / Polifásica Policarbonato",
+                "1× Disjuntor Bipolar DIN 50A",
+                "1× Haste de Aterramento Cobreada 5/8\" × 2,40m c/ Conector de aperto",
+                "1× Caixa de Inspeção de Aterramento",
+                "Cabo de Cobre Flexível 16 mm²",
+                "Eletroduto PVC Rígido 1.1/4\" + Bengala de Entrada 1.1/4\"",
+                "Armação secundária 2 estribos, roldanas e cinta de fixação galvanizada"
+            ],
+            obs: "Recomendado para residências médias com 2 ou mais aparelhos de ar-condicionado split e chuveiro elétrico."
+        },
+        trifasico_res: {
+            titulo: "Poste Completo Trifásico Padrão (Até 25 kW / Disjuntor 63A)",
+            itens: [
+                "1× Poste de Concreto Homologado Energisa (7m - 300 daN)",
+                "1× Caixa de Medição Polifásica (Trifásica) Padrão Energisa PB",
+                "1× Disjuntor Tripolar DIN 63A curva C",
+                "1× Haste de Aterramento Cobreada 5/8\" × 2,40m de alta camada",
+                "1× Caixa de Inspeção em PVC c/ Tampa",
+                "Cabo de Cobre Flexível 16 mm² ou 25 mm² homologado",
+                "Eletroduto PVC Rígido 1.1/2\" + Cabeçote / Bengala 1.1/2\"",
+                "Armação secundária 3 ou 4 estribos, roldanas e kit de cintas de fixação"
+            ],
+            obs: "Padrão mais vendido para comércios locais, oficinas, residências de grande porte e pequenas serralherias."
+        },
+        trifasico_pesado: {
+            titulo: "Poste Completo Trifásico Pesado (Até 45 kW / Disjuntor 80A a 100A)",
+            itens: [
+                "1× Poste de Concreto Reforçado (7m ou 8m - 300 a 400 daN)",
+                "1× Caixa de Medição Indireta ou Polifásica Especial Energisa",
+                "1× Disjuntor Caixa Moldada ou DIN 80A / 100A",
+                "2× Hastes de Aterramento 5/8\" interligadas em malha",
+                "Cabo de Cobre Flexível 35 mm² a 50 mm²",
+                "Eletroduto Galvanizado a Fogo ou PVC 2\" + Bengala pesada",
+                "Kit completo de ferragens reforçadas para ancoragem"
+            ],
+            obs: "Exige projeto elétrico com ART/RRT aprovado previamente junto à Energisa PB."
+        }
+    };
+
+    function mostrarPostes() {
+        const tipo = document.getElementById('poste-tipo').value;
+        const dados = dadosPostes[tipo] || dadosPostes.trifasico_res;
+        const res = document.getElementById('poste-result');
+
+        let listaHtml = dados.itens.map(it => `<li>${it}</li>`).join('');
+
+        let textoWhats = `*KIT POSTE PADRÃO ENERGISA (PB) — AÇO FORTE*\n` +
+            `⚡ *${dados.titulo}*\n` +
+            `-----------------------------------\n` +
+            dados.itens.map(it => `▫️ ${it}`).join('\n') +
+            `\n-----------------------------------\n` +
+            `💡 _Nota: ${dados.obs}_`;
+
+        res.innerHTML = `
+            <h4>⚡ ${dados.titulo}</h4>
+            <ul>${listaHtml}</ul>
+            <p style="margin-top: 8px; color: var(--text-muted); font-size: 0.88rem;"><strong>Observação Técnica:</strong> ${dados.obs}</p>
+            <div class="btn-row">
+                <button class="btn btn-whatsapp" onclick="copiarTexto(${JSON.stringify(textoWhats)})">
+                    📲 Copiar Kit para WhatsApp
+                </button>
+            </div>
+        `;
     }
 </script>
 
